@@ -8,7 +8,8 @@
 
     <properties>
         <compiler-plugin.version>3.14.1</compiler-plugin.version>
-        <maven.compiler.release>21</maven.compiler.release>
+        <lombok.version>1.18.42</lombok.version>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
@@ -54,6 +55,12 @@
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -69,7 +76,6 @@
                             <goal>build</goal>
                             <goal>generate-code</goal>
                             <goal>generate-code-tests</goal>
-                            <goal>native-image-agent</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -88,7 +94,6 @@
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
