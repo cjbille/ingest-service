@@ -13,29 +13,32 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.InputStream;
+
 @JBossLog
 @Path("/ingest")
 public class IngestResource {
 
-    @ConfigProperty(name = "ingest.bucket.name")
-    String bucketName;
-
     @Inject
     S3Client s3Client;
+
+    @ConfigProperty(name = "ingest.bucket.name")
+    String bucketName;
 
     @Path("s3")
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response uploadFile(FormData formData) {
-        try {
+        try (InputStream inputStream = formData.file()){
+            log.infof("Received filename: %s, mimetype: %s, size: %s", formData.filename(), formData.mimeType(), inputStream.available());
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
-                            .key(formData.fileName)
-                            .contentType(formData.mimeType != null ? formData.mimeType : "application/octet-stream")
+                            .key(formData.filename())
+                            .contentType(formData.mimeType() != null ? formData.mimeType() : MediaType.APPLICATION_OCTET_STREAM)
                             .build(),
-                    RequestBody.fromInputStream(formData.file, formData.file.available())
+                    RequestBody.fromInputStream(inputStream, inputStream.available())
             );
             return Response.ok("{\"message\":\"File successfully uploaded to S3\"}").build();
         } catch (Exception e) {
